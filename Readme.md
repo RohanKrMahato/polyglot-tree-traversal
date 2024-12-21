@@ -1,1 +1,3 @@
-# Traversing a tree with nodes written in different languages
+# Traversing a polyglot tree
+
+![Tree](./polyglot%20tree.png)
