@@ -2,7 +2,7 @@
 
 ![Tree](./polyglot%20tree.png)
 
-This project demonstrates traversing a polyglot tree, where each node is implemented in a different programming language.
+This example demonstrates traversing a tree, where nodes are implemented in different programming languages.
 
 ## Overview
 
