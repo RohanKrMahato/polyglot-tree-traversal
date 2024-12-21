@@ -1,0 +1,56 @@
+name: CI Linux Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          ca-certificates \
+          git \
+          liburing-dev \
+          cmake \
+          curl
+
+    - name: Clone and Build MetaCall
+      run: |
+        git clone --branch v0.8.7 https://github.com/metacall/core
+        cd core
+        ./tools/metacall-environment.sh release base nodejs c python
+        sudo mkdir build && cd build
+        sudo cmake \
+          -DOPTION_BUILD_LOADERS_C=On \
+          -DOPTION_BUILD_LOADERS_NODE=On \
+          -DOPTION_BUILD_LOADERS_PY=On \
+          -DOPTION_BUILD_PORTS=On \
+          -DOPTION_BUILD_PORTS_NODE=On \
+          -DOPTION_BUILD_PORTS_PY=On \
+          -DOPTION_BUILD_DETOURS=Off \
+          -DOPTION_BUILD_SCRIPTS=Off \
+          -DOPTION_BUILD_TESTS=Off \
+          -DOPTION_BUILD_EXAMPLES=Off \
+          ..
+        sudo cmake --build . --target install
+        sudo ldconfig /usr/local/lib
+        cd ../..
+        sudo rm -rf core
+        
+    - name: Set path & Run MetaCall Example
+      run: |
+        export LOADER_LIBRARY_PATH="/usr/local/lib"
+        export LOADER_SCRIPT_PATH="/home/runner/work/polyglot-tree-traversal/polyglot-tree-traversal/scripts" # path of the scripts
+        metacallcli rootNode.py
